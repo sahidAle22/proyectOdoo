@@ -22,6 +22,13 @@ class PresupuestoController(http.Controller):
         if not presupuesto:
             return Response(json.dumps({'error': 'El presupuesto no existe'}), status=404, content_type='application/json')
 
+        generos = http.request.env['genero'].sudo().search_read([])
+        generoData = []
+        for genero in generos:
+            if genero['id'] in presupuesto[0]['generos_ids']:
+                generoData.append({"id": genero['id'], "name": genero['name']})
+
+        presupuesto[0]['generos_ids'] = generoData
         return Response(json.dumps(presupuesto), content_type='application/json', status=200)
     @http.route('/api/presupuesto',type='json', auth='public', cors='*', csrf=False, methods=['POST'])
     def create_presupuesto(self, **kwargs):
